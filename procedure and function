@@ -1,0 +1,23 @@
+create table emp1(
+eno number ,
+ename varchar2(20),
+dept_name varchar2(20));
+
+
+create or replace procedure insert_data (e_no in emp1.eno%type,e_name in emp1.ename%type,d_name in emp1.dept_name%type )
+is
+begin
+insert into emp1 values(e_no,e_name,d_name);
+end;
+/
+
+TRUNCATE TABLE emp1;
+
+exec insert_data(101,'chen','HR');
+exec insert_data(102,'ava','PR');
+
+exec insert_data(103,'nelson','sales');
+
+
+
+select * from emp1;
