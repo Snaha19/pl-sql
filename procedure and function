@@ -24,3 +24,32 @@ exec insert_data(103,'nelson','sales');
 
 
 select * from emp1;
+
+
+
+
+
+
+
+12.
+
+select * from emp1;
+
+create or replace procedure show_data(e_no in emp1.eno%type)
+as
+
+e_name emp1.ename%type;
+d_name emp1.dept_name%type;
+
+begin
+
+select ename,dept_name into e_name,d_name from emp1
+where eno=e_no;
+
+dbms_output.put_line('employee name : '||e_name);
+dbms_output.put_line('dept name : '||d_name);
+end;
+/
+set serveroutput on;
+exec show_data(101);
+
