@@ -31,7 +31,9 @@ select * from emp1;
 
 
 
-12.
+12.Create a Procedure, which receives employee number and display employee name Designation and salary
+
+
 
 select * from emp1;
 
