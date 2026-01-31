@@ -55,3 +55,29 @@ end;
 set serveroutput on;
 exec show_data(101);
 
+
+
+
+
+
+13.
+
+create or replace procedure emp_info (e_no in emp1.eno%type,e_name out emp1.ename%type,d_name out emp1.dept_name%type)
+is 
+begin
+select ename,dept_name into e_name,d_name from emp1
+where eno=e_no;
+dbms_output.put_line('employee name : '||e_name||'department :'||d_name||'employee no :'||e_no);
+end;
+/
+
+
+set serveroutput on;
+declare
+
+v_name emp1.ename%type;
+v_dept emp1.dept_name%type;
+begin
+ emp_info(101,v_name,v_dept);
+end;
+/
