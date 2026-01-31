@@ -60,7 +60,7 @@ exec show_data(101);
 
 
 
-13.
+13. Write PL/SQL, block, which will use a user-defined procedure, which accept employee number and return employer name and department name in a out parameter.
 
 create or replace procedure emp_info (e_no in emp1.eno%type,e_name out emp1.ename%type,d_name out emp1.dept_name%type)
 is 
