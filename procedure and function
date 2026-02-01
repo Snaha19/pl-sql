@@ -81,3 +81,56 @@ begin
  emp_info(101,v_name,v_dept);
 end;
 /
+
+
+
+
+14.Create a procedure, which will accept Deptno and Diplay no of employee under diffcunt grade.
+
+
+create table emp3(
+eno number primary key,
+ename varchar2(30),
+dept_no number,
+grade varchar2(5));
+
+create or replace procedure insertemp3 (empno in emp3.eno%type,e_name in emp3.ename%type ,d_no in emp3.dept_no%type,g_rade in emp3.grade%type)
+is 
+begin
+insert into emp3 values(empno,e_name,d_no,g_rade);
+end;
+/
+
+set serveroutput on;
+begin
+insertemp3(101,'chen',10,'A');
+insertemp3(102,'enna',20,'C');
+insertemp3(103,'Dylan',10,'A');
+insertemp3(104,'Ava',30,'B');
+end;
+/
+
+
+create or replace procedure info (dno in emp3.dept_no%type)
+is
+total number;
+begin
+
+for r in (
+    select grade, count(*) cnt
+    from emp3
+    where dept_no = dno
+    group by grade
+)
+loop
+    dbms_output.put_line(
+        'Grade ' || r.grade || ' : ' || r.cnt
+    );
+end loop;
+end;
+/
+
+exec info(10);
+
+
+
