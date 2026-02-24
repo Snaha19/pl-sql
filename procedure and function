@@ -26,7 +26,7 @@ exec insert_data(103,'nelson','sales');
 select * from emp1;
 
 
-
+==================================================================================================================================
 
 
 
@@ -58,7 +58,7 @@ exec show_data(101);
 
 
 
-
+======================================================================================================================================================================
 
 13. Write PL/SQL, block, which will use a user-defined procedure, which accept employee number and return employer name and department name in a out parameter.
 
@@ -83,7 +83,7 @@ end;
 /
 
 
-
+=====================================================================================================================================
 
 14.Create a procedure, which will accept Deptno and Diplay no of employee under diffcunt grade.
 
@@ -129,6 +129,174 @@ loop
 end loop;
 end;
 /
+
+================================================================================================================================
+15.
+CREATE OR REPLACE FUNCTION total_salary_dept(
+	dno IN NUMBER
+)
+RETURN NUMBER
+IS
+	total_sal NUMBER;
+BEGIN
+	SELECT sum(sal)
+	INTO total_sal
+	FROM emp
+	where deptno = dno;
+	
+	return total_sal;
+END;
+
+========================================================================
+
+16.
+CREATE OR REPLACE FUNCTION count_emp_dept(
+	dno IN NUMBER
+)
+RETURN NUMBER
+IS
+	cnt NUMBER;
+BEGIN
+	SELECT count(*)
+	INTO cnt
+	FROM emp
+	where deptno = dno;
+	
+	return cnt;
+END;
+
+========================================================================
+
+17.
+CREATE OR REPLACE FUNCTION cal_bonus(
+	p_no IN NUMBER
+)
+RETURN NUMBER
+IS
+	new_sal emp.sal%type;
+BEGIN
+
+	SELECT sal
+	into new_sal
+	from emp
+	where empno = p_no;
+
+	return new_sal * 0.20;
+END;
+
+=======================================================================
+
+18.
+CREATE OR REPLACE PROCEDURE show_emp(
+	e_id IN NUMBER
+) IS
+	v_name emp.ename%type;
+	v_sal emp.sal%type;
+	v_dept emp.dname%type;
+BEGIN
+	SELECT e.ename, e.sal, d.dname
+	INTO v_name, v_sal, v_dept
+	from emp e, dept d
+	where e.deptno = d.deptno
+	AND e.empno = e_id
+	
+	DBMS_OUTPUT.PUT_LINE(v_name || v_sal || v_dept);
+END;
+
+========================================================================
+
+19.
+CREATE OR REPLACE PROCEDURE update_salary(
+	eno IN NUMBER,
+	percentage IN NUMBER
+)
+BEGIN
+	UPDATE emp
+	SET sal = sal + (sal * percent / 100)
+	where empno = eno;
+END;
+
+========================================================================
+
+20.
+CREATE OR REPLACE FUNCTION calculate_age(
+	p_emp_id IN NUMBER
+) IS
+	v_dob DATE;
+	v_age NUMBER;
+BEGIN
+	SELECT dob
+	INTO v_dob
+	from emp
+	where empno = p_emp_id;
+
+	v_age := FLOOR(MONTHS_BETWEEN(SYSDATE, v_dob) / 12);
+
+	return v_age;
+END;
+
+=======================================================================
+
+21.
+DELCARE
+	CURSOR c_emp IS
+		SELECT ename, sal
+		FROM emp;
+BEGIN
+	OPEN c_emp
+		FOR r IN c_emp LOOP
+			DBMS_OUTPUT.PUT_LINE(r.name || r.sal);
+		END LOOP;
+	CLOSE c_emp;
+END;
+
+=======================================================================
+
+22.
+DELCARE
+	CURSOR c_emp IS
+		SELECT empno, ename, job
+		FROM emp
+		WHERE job IN ('MANAGER', 'ANALYST');
+BEGIN
+	OPEN c_emp
+		FOR r IN c_emp LOOP
+			DBMS_OUTPUT.PUT_LINE(r.empno || r.name || r.job);
+		END LOOP;
+	CLOSE c_emp;
+END;
+
+======================================================================
+
+23.
+DECLARE
+	CURSOR sales_cursor IS
+		SELECT e.empno, e.sal, e.ename
+		from emp e
+		JOIN dept d on e.deptno = d.deptno
+		where d.dname = 'SALES';
+
+	v_new_sal emp.sal%TYPE;
+
+BEGIN
+	FOR emp_rec IN sales_cursor
+	LOOP
+		v_new_sal := emp_rec.sal * 0.10;
+
+		DBMS_OUTPUT.PUT_LINE(
+     	 		'Employee: ' || emp_rec.ename ||
+     			' | Old Salary: ' || emp_rec.sal ||
+      			' | New Salary: ' || v_new_sal
+   		);
+
+		UPDATE emp
+		SET sal = v_new_sal
+		WHERE empno = emp_rec.empno;
+	
+	END LOOP;
+	COMMIT;
+END;
+
 
 exec info(10);
 
