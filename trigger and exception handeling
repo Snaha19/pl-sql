@@ -1,0 +1,243 @@
+1. Salary Audit System
+Case Study:
+An EMPLOYEE(emp_id, name, salary, dept_id) table is maintained in a company. Management wants to track every
+salary change.
+Question:
+Create a trigger that:
+ Fires before salary is updated
+ Stores emp_id, old salary, new salary, date of change into SALARY_LOG(emp_id, old_salary, new_salary,
+change_date)
+
+solution:
+
+set serveroutput on;
+
+create table employee_sal(
+emp_id number(5),
+name varchar2(32),
+new_salary number(7,2),
+dept_id number(5));
+
+create table salary_log(
+emp_id number(5),
+old_salary number(7,2),
+new_salary number(7,2),
+timestamp date);
+
+create or replace trigger backup_emp
+before update of new_salary
+on employee_sal
+for each row
+
+begin
+
+insert into salary_log
+values
+(:old.emp_id,
+ :old.new_salary,
+ :new.new_salary,
+  sysdate);
+ end;
+/
+
+
+insert into employee_sal values (1101,'alice',78900,10);
+select * from employee_sal;
+
+update employee_sal set new_salary=80000 where emp_id=1101;
+select * from salary_log;
+
+
+===========================================================================================================================================================================================
+
+
+2. Prevent Salary Decrease
+Case Study:
+The HR policy states that employee salary cannot be decreased.
+Question:
+Write a trigger that:
+ Prevents updating salary if the new salary is less than the old salary
+ Raises an appropriate error message
+
+
+solution :
+
+create or replace trigger updating_sal
+before update of new_salary
+on employee_sal
+for each row
+
+begin
+   	if :new.new_salary< :old.new_salary then
+		raise_application_error(-20001,'new salary cannot be less than old salary');
+	end if;
+ 
+end;
+/
+insert into employee_sal values (1102,'bob',58900,20);
+select * from employee_sal;
+
+update employee_sal set new_salary=40000 where emp_id=1102;
+select * from salary_log;
+
+
+
+
+==========================================================================================================================================================================================
+
+
+
+
+3. Automatic Department Employee Count
+Case Study:
+Two tables:
+ DEPARTMENT(dept_id, dept_name, total_emp)
+ EMPLOYEE(emp_id, name, dept_id)
+Question:
+Create triggers to:
+ Increase total_emp when a new employee is inserted
+ Decrease total_emp when an employee is deleted
+
+
+solution:
+
+
+create table department(
+dept_id number,
+dept_name varchar2(30),
+total_emp number));
+
+ALTER TABLE department
+ADD PRIMARY KEY (dept_id);
+
+create table emp_loyee(
+emp_id number primary key,
+name varchar2(30),
+dept_id number REFERENCES department(dept_id));
+
+create or replace trigger insert_emp
+after insert on emp_loyee
+for each row
+
+begin
+ update department
+ set total_emp=total_emp+1
+where dept_id=:new.dept_id;
+end;
+/
+begin
+create or replace trigger delete_emp
+after delete on emp_loyee
+for each row
+
+ update department
+ set total_emp=total_emp-1
+where dept_id=:old.dept_id;
+end;
+/
+
+
+
+======================================================================================================================================================================================
+
+4. Log Deleted Records
+Case Study:
+Company wants to keep backup of deleted employee records.
+Question:
+Write a trigger that:
+ Stores deleted employee details into EMPLOYEE_BACKUP before deletion.
+
+solution:
+
+create table employee_backup(
+emp_id number primary key,
+name varchar2(30),
+dept_id number,
+sign_off date );
+
+create or replace trigger deleted_emp
+after delete on emp_loyee
+for each row
+
+begin
+insert into employee_backup 
+values (:old.emp_id,:old.name,:old.dept_id,sysdate);
+end;
+/
+INSERT INTO emp_loyee VALUES (201,'Riya',2);
+DELETE FROM emp_loyee WHERE emp_id=201;
+/
+
+
+===================================================================================================================================================================================
+
+5. Unique Email Validation
+Case Study:
+STUDENT(student_id, name, email) table stores student details.
+Question:
+Create a trigger to:
+ Prevent insertion of duplicate email IDs
+ Raise an error if email already exists.
+
+
+solution :
+
+create table student(
+student_id number,
+name varchar2(30),
+email varchar2(100) );
+
+create or replace trigger unique_email
+before insert 
+on student
+for each row
+
+declare 
+count_email number;
+
+begin
+	select count(*) into count_email
+	from student
+	where email=:new.email;
+	
+ if(count_email>0)then
+	raise_application_error(-20001,'email already exists ');
+end if;
+end;
+/
+	
+INSERT INTO student VALUES (201,'Riya','riya@gamil.com');
+
+
+======================================================================================================================================================================================
+
+
+6. Automatic Timestamp Update
+Case Study:
+PRODUCT(product_id, name, price, last_updated) table is maintained.
+Question:
+Create a trigger that:
+ Automatically updates last_updated with current date whenever price is modified.
+
+
+solution :
+
+
+
+create table product(
+product_id number,
+name varchar2(30),
+price number(7,2),
+last_updated date);
+
+create or replace trigger updated_product
+before update of price
+on product
+for each row
+
+begin
+ :new.last_updated :=sysdate;
+end;
+/
+INSERT INTO product
+VALUES (11, 'biscuit', 40, TO_DATE('12-12-2012','DD-MM-YYYY'));
